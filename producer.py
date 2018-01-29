@@ -20,7 +20,9 @@ class Producer(threading.Thread):
 
         for raw_rsvp in self.stream_meetup_initial():
             try:
-                producer.send('rsvp_country', raw_rsvp)
+                rsvp = json.loads(raw_rsvp)
+                line = str(rsvp['rsvp_id']) + ',' + rsvp['group']['group_country']
+                producer.send('rsvp_country2', line)
             except:
                 continue
 
@@ -45,20 +47,19 @@ class Consumer(multiprocessing.Process):
         consumer = KafkaConsumer(bootstrap_servers='localhost:9092',
                                  auto_offset_reset='earliest',
                                  consumer_timeout_ms=1000)
-        consumer.subscribe(['rsvp_country'])
+        consumer.subscribe(['rsvp_country2'])
 
         while not self.stop_event.is_set():
             for message in consumer:
+                print(message)
                 try:
-                    rsvp = json.loads(message)
-                    line = str(rsvp['rsvp_id']) + ',' + rsvp['group']['group_country']
                     with open('rsvp_country.csv', 'a') as file:
-                        file.write(line)
+                        file.write(message)
                         file.write('\n')
                     if self.stop_event.is_set():
                         break
-                except:
-                    continue
+                except ValueError as e:
+                    print(e)
 
         consumer.close()
 
@@ -72,7 +73,7 @@ def main():
     for t in tasks:
         t.start()
 
-    time.sleep(10000)
+    time.sleep(120)
 
     for task in tasks:
         task.stop()
