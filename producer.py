@@ -49,13 +49,16 @@ class Consumer(multiprocessing.Process):
 
         while not self.stop_event.is_set():
             for message in consumer:
-                rsvp = json.loads(message)
-                line = str(rsvp['rsvp_id']) + ',' + rsvp['group']['group_country']
-                with open('rsvp_country.csv', 'a') as file:
-                    file.write(line)
-                    file.write('\n')
-                if self.stop_event.is_set():
-                    break
+                try:
+                    rsvp = json.loads(message)
+                    line = str(rsvp['rsvp_id']) + ',' + rsvp['group']['group_country']
+                    with open('rsvp_country.csv', 'a') as file:
+                        file.write(line)
+                        file.write('\n')
+                    if self.stop_event.is_set():
+                        break
+                except:
+                    continue
 
         consumer.close()
 
