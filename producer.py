@@ -23,8 +23,8 @@ class Producer(threading.Thread):
                 rsvp = json.loads(raw_rsvp)
                 line = str(rsvp['rsvp_id']) + ',' + rsvp['group']['group_country']
                 producer.send('rsvp_country2', line)
-            except:
-                continue
+            except ValueError as e:
+                print(e)
 
         producer.close()
 
