@@ -51,10 +51,10 @@ class Consumer(multiprocessing.Process):
 
         while not self.stop_event.is_set():
             for message in consumer:
-                print(str(message))
+                print(str(message['value']))
                 try:
                     with open('rsvp_country.csv', 'a') as file:
-                        file.write(str(message))
+                        file.write(str(message['value']))
                         file.write('\n')
                     if self.stop_event.is_set():
                         break
