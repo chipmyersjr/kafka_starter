@@ -77,8 +77,6 @@ def main():
     for t in tasks:
         t.start()
 
-    time.sleep(120)
-
     for task in tasks:
         task.stop()
 
