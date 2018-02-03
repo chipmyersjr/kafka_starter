@@ -3,6 +3,7 @@ import time
 import multiprocessing
 import requests
 import json
+import psycopg2
 
 from kafka import KafkaConsumer, KafkaProducer
 
@@ -48,21 +49,24 @@ class Consumer(multiprocessing.Process):
                                  auto_offset_reset='earliest',
                                  consumer_timeout_ms=1000)
         consumer.subscribe(['rsvp_country2'])
+        conn = psycopg2.connect("dbname='meetups' user='chip' host='meetups.cdpprjjrjqmd.us-east-1.redshift.amazonaws.com' password='John316!' port=5439")
+        cur = conn.cursor()
 
         while not self.stop_event.is_set():
             for message in consumer:
                 print(str(message.value))
                 try:
-                    with open('rsvp_country.csv', 'a') as file:
-                        file.write(str(message.value))
-                        file.write('\n')
+                    id, country = str(message.value).split(',')
+                    query = "INSERT INTO meetup_country (id, country) VALUES ('" + id + "', '" + country + "')"
+                    cur.execute(query)
+                    conn.commit()
                     if self.stop_event.is_set():
                         break
                 except ValueError as e:
                     print(e)
 
         consumer.close()
-
+        conn.close()
 
 def main():
     tasks = [
