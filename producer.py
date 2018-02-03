@@ -23,9 +23,9 @@ class Producer(threading.Thread):
             try:
                 rsvp = json.loads(raw_rsvp)
                 line = str(rsvp['rsvp_id']) + ',' + rsvp['group']['group_country']
-                producer.send('rsvp_country2', line.encode())
+                producer.send('rsvp_country3', line.encode())
             except ValueError as e:
-                print(e)
+                continue
 
         producer.close()
 
@@ -48,8 +48,10 @@ class Consumer(multiprocessing.Process):
         consumer = KafkaConsumer(bootstrap_servers='localhost:9092',
                                  auto_offset_reset='earliest',
                                  consumer_timeout_ms=1000)
-        consumer.subscribe(['rsvp_country2'])
+        consumer.subscribe(['rsvp_country3'])
+        print('subscribed')
         conn = psycopg2.connect("dbname='meetups' user='chip' host='meetups.cdpprjjrjqmd.us-east-1.redshift.amazonaws.com' password='John316!' port=5439")
+        print('connected')
         cur = conn.cursor()
 
         while not self.stop_event.is_set():
