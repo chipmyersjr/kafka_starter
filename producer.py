@@ -55,6 +55,7 @@ class Consumer(multiprocessing.Process):
         cur = conn.cursor()
 
         while not self.stop_event.is_set():
+            print('starting')
             for message in consumer:
                 print(str(message.value))
                 try:
