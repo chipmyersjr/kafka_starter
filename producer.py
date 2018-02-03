@@ -43,14 +43,17 @@ class Consumer(multiprocessing.Process):
 
     def stop(self):
         self.stop_event.set()
-
     def run(self):
         consumer = KafkaConsumer(bootstrap_servers='localhost:9092',
                                  auto_offset_reset='earliest',
                                  consumer_timeout_ms=1000)
         consumer.subscribe(['rsvp_country3'])
+
+        with open('/home/ubuntu/config.json', 'r') as file:
+            config = json.load(file)
+
         print('subscribed')
-        conn = psycopg2.connect("dbname='meetups' user='chip' host='meetups.cdpprjjrjqmd.us-east-1.redshift.amazonaws.com' password='John316!' port=5439")
+        conn = psycopg2.connect(config['db_config'])
         print('connected')
         cur = conn.cursor()
 
