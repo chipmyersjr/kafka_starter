@@ -54,19 +54,20 @@ class Consumer(multiprocessing.Process):
         print('connected')
         cur = conn.cursor()
 
-        print('starting')
-        for message in consumer:
-            print(str(message.value))
-            try:
-                id, country = str(message.value).split(',')
-                query = "INSERT INTO meetup_country (id, country) VALUES ('" + id + "', '" + country + "')"
-                cur.execute(query)
-                conn.commit()
-                print('committed')
-                if self.stop_event.is_set():
-                    break
-            except ValueError as e:
-                print(e)
+        while True:
+            print('starting')
+            for message in consumer:
+                print(str(message.value))
+                try:
+                    id, country = str(message.value).split(',')
+                    query = "INSERT INTO meetup_country (id, country) VALUES ('" + id + "', '" + country + "')"
+                    cur.execute(query)
+                    conn.commit()
+                    print('committed')
+                    if self.stop_event.is_set():
+                        break
+                except ValueError as e:
+                    print(e)
 
         consumer.close()
         conn.close()
