@@ -60,6 +60,7 @@ class Consumer(multiprocessing.Process):
                     query = "INSERT INTO meetup_country (id, country) VALUES ('" + id + "', '" + country + "')"
                     cur.execute(query)
                     conn.commit()
+                    print('committed')
                     if self.stop_event.is_set():
                         break
                 except ValueError as e:
